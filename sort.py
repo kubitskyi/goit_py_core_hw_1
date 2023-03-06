@@ -39,13 +39,6 @@ def normalize(name: str) -> str:
     return name
 
 
-    for ctg in FOLDERS:
-        try:
-            ctg.mkdir()
-        except FileExistsError as exc:
-            continue
-
-
 # Сортування файлів
 def sort_file(file: Path) -> None:
     sufix = str(file.suffix)[1:]
