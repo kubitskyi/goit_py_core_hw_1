@@ -3,7 +3,11 @@ import shutil
 import sys
 
 
-#  Translation
+
+TARGET_FOLDER = sys.argv[1]
+PATH = Path(TARGET_FOLDER +'/')
+
+# Translation
 TRANSLATION = ("a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u",
                "f", "h", "ts", "ch", "sh", "sch", "", "y", "", "e", "yu", "ya", "je", "i", "ji", "g")
 CYRILLIC_SYMBOLS = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ"
@@ -25,18 +29,19 @@ FILE_CATEGORY={
     'audio':  ['mp3', 'ogg', 'wav', 'amr'],
     'archives': ['zip', 'gz', 'tar']
 }
-TARGET_FOLDER = sys.argv[1]
-PATH = Path(TARGET_FOLDER +'/')
 FOLDERS =[ Path(TARGET_FOLDER + '/' + x) for x in FILE_CATEGORY.keys()]+[Path(TARGET_FOLDER + '/' +'unknown')]
 
 
-# Нормалізація імен
+# Name normalize
 def normalize(name: str) -> str:
     name = name.translate(TRANS) 
     return name
 
+def rename_file(item):
+    name = str(item.stem + '_copy' + item.suffix)
+    return item.rename(item.parent/name)
 
-# Сортування файлів
+# Sort file
 def sort_file(file: Path) -> None:
     suffix = str(file.suffix)[1:]
     ctg = 'unknown'
@@ -60,12 +65,11 @@ def sort_file(file: Path) -> None:
             case 'unknown':
                 shutil.move(file, PATH / 'unknown')              
     except shutil.Error:
-        name = str(file.stem + '_copy' + file.suffix)
-        file = file.rename(file.parent / name)
+        file = rename_file(file)
         sort_file(file)
         
 
-# Вивід результатів
+# Result
 def print_result(path: Path):
     result = {}
     for item in path.iterdir():
@@ -97,8 +101,7 @@ def main(path: Path, first_round = True):
                 try:
                     shutil.move(item, PATH / 'tmp_dir')
                 except shutil.Error:
-                    name = str(item.stem + '_copy' + item.suffix)
-                    item = item.rename(item.parent/name)
+                    item = rename_file(item)
 
     for ctg in FOLDERS:
         try:
