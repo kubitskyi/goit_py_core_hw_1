@@ -13,7 +13,9 @@ INVALI_CHAR = set('!@#$%^&*()-+=`~:;}{\/?')
 for c, l in zip(CYRILLIC_SYMBOLS, TRANSLATION):
     TRANS[ord(c)] = l
     TRANS[ord(c.upper())] = l.upper()
-    
+
+for i in INVALI_CHAR:
+    TRANS[ord(i)] = "_"
 
 #  Folders and category 
 FILE_CATEGORY={
@@ -23,43 +25,46 @@ FILE_CATEGORY={
     'audio':  ['mp3', 'ogg', 'wav', 'amr'],
     'archives': ['zip', 'gz', 'tar']
 }
-# TARGET_FOLDER = '/home/yaroslav/Projects/goit_py_hw/tets'
-TARGET_FOLDER = sys.argv[1]
+# TARGET_FOLDER = sys.argv[1]
+TARGET_FOLDER = '/home/yaroslav/Projects/goit_py_hw/goit_py_hw_1/folder'
 PATH = Path(TARGET_FOLDER +'/')
-
 FOLDERS =[ Path(TARGET_FOLDER + '/' + x) for x in FILE_CATEGORY.keys()]+[Path(TARGET_FOLDER + '/' +'unknown')]
 
 
 # Нормалізація імен
 def normalize(name: str) -> str:
-    name = name.translate(TRANS)
-    for i in name:
-        if i in INVALI_CHAR:
-            name = name.replace(i, '_')    
+    name = name.translate(TRANS) 
     return name
 
 
 # Сортування файлів
 def sort_file(file: Path) -> None:
-    sufix = str(file.suffix)[1:]
+    suffix = str(file.suffix)[1:]
+    ctg = 'unknown'
 
+    for k, v in  FILE_CATEGORY.items():
+        if suffix in v:
+            ctg = k
+            
     try:
-        if sufix in FILE_CATEGORY['images']:
-            shutil.move(file, PATH / 'images')
-        elif sufix in FILE_CATEGORY['video']:
-            shutil.move(file, PATH / 'video')
-        elif sufix in FILE_CATEGORY['documents']:
-            shutil.move(file, PATH / 'documents')
-        elif sufix in FILE_CATEGORY['audio']:
-            shutil.move(file, PATH / 'audio')
-        elif sufix in FILE_CATEGORY['archives']:
-            shutil.move(file, PATH / 'archives')
-        else:
-            shutil.move(file, PATH / 'unknown')
+        match ctg:
+            case 'images':
+                shutil.move(file, PATH / 'images')
+            case 'video':
+                shutil.move(file, PATH / 'video')
+            case 'documents':
+                shutil.move(file, PATH / 'documents')
+            case 'audio':
+                shutil.move(file, PATH / 'audio')
+            case 'archives':
+                shutil.move(file, PATH / 'archives')
+            case 'unknown':
+                shutil.move(file, PATH / 'unknown')              
     except shutil.Error:
         name = str(file.stem + '_copy' + file.suffix)
-        file = file.rename(file.parent/name)
+        file = file.rename(file.parent / name)
         sort_file(file)
+        
 
 # Вивід результатів
 def print_result(path: Path):
@@ -96,11 +101,11 @@ def main(path: Path, first_round = True):
                     name = str(item.stem + '_copy' + item.suffix)
                     item = item.rename(item.parent/name)
 
-        for ctg in FOLDERS:
-            try:
-                ctg.mkdir()
-            except FileExistsError as exc:
-                continue
+    for ctg in FOLDERS:
+        try:
+            ctg.mkdir()
+        except FileExistsError as exc:
+            continue
 
     # Прохід по папках
     for item in path.iterdir():
@@ -120,8 +125,6 @@ def main(path: Path, first_round = True):
 
             sort_file(item)
 
-    # return path.rmdir() if path != PATH else main(item, first_round=False)
-    
 
 if __name__ == '__main__':
     main(PATH)
