@@ -25,8 +25,7 @@ FILE_CATEGORY={
     'audio':  ['mp3', 'ogg', 'wav', 'amr'],
     'archives': ['zip', 'gz', 'tar']
 }
-# TARGET_FOLDER = sys.argv[1]
-TARGET_FOLDER = '/home/yaroslav/Projects/goit_py_hw/goit_py_hw_1/folder'
+TARGET_FOLDER = sys.argv[1]
 PATH = Path(TARGET_FOLDER +'/')
 FOLDERS =[ Path(TARGET_FOLDER + '/' + x) for x in FILE_CATEGORY.keys()]+[Path(TARGET_FOLDER + '/' +'unknown')]
 
@@ -45,7 +44,7 @@ def sort_file(file: Path) -> None:
     for k, v in  FILE_CATEGORY.items():
         if suffix in v:
             ctg = k
-            
+
     try:
         match ctg:
             case 'images':
@@ -125,7 +124,8 @@ def main(path: Path, first_round = True):
 
             sort_file(item)
 
+    if first_round: print_result(PATH)
+
 
 if __name__ == '__main__':
     main(PATH)
-    print_result(PATH)
